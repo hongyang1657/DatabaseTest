@@ -9,6 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.List;
+
+import fitme.ai.databasetest.bean.Goods;
 import fitme.ai.databasetest.utils.DBHelper;
 
 public class MainActivity extends Activity {
@@ -27,47 +30,48 @@ public class MainActivity extends Activity {
     public void click(View view){
         switch (view.getId()){
             case R.id.bt_add:
-                insertData();
+                Goods goods = new Goods(1L,"水溶c100",4.5f,"2342354235235");
+                insertData(goods);
                 break;
             case R.id.bt_delete:
-                deleteData();
+                deleteData(1L);
                 break;
             case R.id.bt_alter:
-                updateData();
+                Goods goods_new = new Goods(1L,"水溶c1010",5.5f,"35564352234234");
+                updateData(goods_new);
                 break;
             case R.id.bt_search:
-                queryData();
+                List<Goods> goodsList = queryAll();
+                for (int i=0;i<goodsList.size();i++){
+                    goodsList.get(i).toString();
+                    Log.i("debug_message",goodsList.get(i).toString());
+                }
                 break;
             default:
                 break;
         }
     }
 
-    private void insertData(){
-        ContentValues values = new ContentValues();
-        values.put(DBHelper.GOODS_NAME,"水溶C100");
-        values.put(DBHelper.PRICE,4.5f);
-        values.put(DBHelper.GOODS_BAR_CODE,"6921168500956");
-        sqLiteDatabase.insert(DBHelper.TABLE_NAME,null,values);
+    private void insertData(Goods goods){
+        MyApplication.getDaoSession().getGoodsDao().insertOrReplace(goods);
         Toast.makeText(this, "插入成功", Toast.LENGTH_SHORT).show();
     }
 
-    private void deleteData() {
-        int count = sqLiteDatabase.delete(DBHelper.TABLE_NAME, DBHelper.GOODS_NAME + " = ?", new String[]{"水溶C100"});
-        Toast.makeText(this, "删除数量："+count, Toast.LENGTH_SHORT).show();
+    private void deleteData(long id) {
+        MyApplication.getDaoSession().getGoodsDao().deleteByKey(id);
+        Toast.makeText(this, "删除", Toast.LENGTH_SHORT).show();
     }
 
-    private void updateData() {
-        ContentValues values = new ContentValues();
-        values.put(DBHelper.GOODS_NAME, "小茗同学");
-        values.put(DBHelper.PRICE, 5f);
-        values.put(DBHelper.GOODS_BAR_CODE, "1234568500956");
-        int count = sqLiteDatabase.update(DBHelper.TABLE_NAME, values, DBHelper.GOODS_NAME + " = ?", new String[]{"水溶C100"});
-        Toast.makeText(this, "修改成功：" + count, Toast.LENGTH_SHORT).show();
+    private void updateData(Goods goods) {
+        MyApplication.getDaoSession().getGoodsDao().update(goods);
+        Toast.makeText(this, "修改成功：", Toast.LENGTH_SHORT).show();
     }
 
-    private void queryData() {
-        sqLiteDatabase.execSQL("select "+DBHelper.GOODS_NAME+" from "+DBHelper.TABLE_NAME);
-    }
 
+    /**
+     * 查询全部数据
+     */
+    public static List<Goods> queryAll() {
+        return MyApplication.getDaoSession().getGoodsDao().loadAll();
+    }
 }
