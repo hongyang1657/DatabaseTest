@@ -38,4 +38,12 @@
         android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/bt_search_from_internet"
+        android:text="查询商品信息"
+        android:onClick="click"
+        android:gravity="center"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

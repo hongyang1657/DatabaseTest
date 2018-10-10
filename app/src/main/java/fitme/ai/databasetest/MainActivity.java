@@ -9,15 +9,31 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import fitme.ai.databasetest.api.ApiManager;
+import fitme.ai.databasetest.api.ApiService;
 import fitme.ai.databasetest.bean.Goods;
 import fitme.ai.databasetest.utils.DBHelper;
+import fitme.ai.databasetest.utils.L;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity {
 
     private DBHelper dbHelper;
     private SQLiteDatabase sqLiteDatabase;
+    private String appcode = "APPCODE 5353076bdf71427c8c8aa5ab97eec66c";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +62,53 @@ public class MainActivity extends Activity {
                     goodsList.get(i).toString();
                     Log.i("debug_message",goodsList.get(i).toString());
                 }
+                break;
+            case R.id.bt_search_from_internet:
+                ApiManager.serviceBarcode
+                        .getGoodsDetails(appcode,"6938166920785")
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.newThread())
+                        .subscribe(new Subscriber<ResponseBody>() {
+                            @Override
+                            public void onCompleted() {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                L.i("e:"+e.toString());
+                            }
+
+                            @Override
+                            public void onNext(ResponseBody responseBody) {
+                                try {
+                                    L.i("res:"+responseBody.string());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                /*String url = "https://ali-barcode.showapi.com/barcode?code=6938166920785";
+                String appcode = "5353076bdf71427c8c8aa5ab97eec66c";
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .addHeader("Authorization","APPCODE " + appcode)
+                        .url(url)
+                        .build();
+                Call call = okHttpClient.newCall(request);
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        L.i("e:"+e.toString());
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        L.i("response:"+response.body().string());
+                    }
+                });*/
+
                 break;
             default:
                 break;
